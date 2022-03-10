@@ -29,10 +29,10 @@ function preload(){
 }
 
 function setup(){
-  createCanvas(600,200);
+  createCanvas(windowWidth,windowHeight);
   
   //criando o trex
-  trex = createSprite(50,160,20,50);
+  trex = createSprite(50,height/3,20,50);
   trex.addAnimation("running", trex_running);
   trex.addAnimation("dead", trexMortin)
   edges = createEdgeSprites();
@@ -42,21 +42,21 @@ function setup(){
   trex.x = 50
 
   //criar chão
- ground = createSprite(200, 180, 400, 20); 
+  ground = createSprite(width/2,height/2,width,2); 
  ground.addImage(groundImage)
   
  //criar chão invisivel
- groundInvisible = createSprite(200, 190, 400, 10)
+ groundInvisible = createSprite(width/2,height/2 +65,width,125);
  groundInvisible.visible = false
 
  //imagem do game over
-gameOver = createSprite(300, 100)
+ gameOver = createSprite(width/2,height/3- 50);
 gameOver.addImage(gameOverImg)
 gameOver.scale = 0.5
 gameOver.visible = false
 
 //imagem do restart
-restart = createSprite(300, 140)
+restart = createSprite(width/2,height/3);
 restart.addImage(restartImg)
 restart.scale = 0.5
 restart.visible = false
@@ -65,7 +65,7 @@ restart.visible = false
  cactoGroup = new Group();
  nuvenzinhaGroup = new Group();
  
- trex.setCollider("circle", 0, 0, 40); 
+ trex.setCollider("rectangle",0,0,trex.width,trex.height);
 }
 
 
@@ -73,12 +73,14 @@ function draw(){
   //definir a cor do plano de fundo 
   background("white");
 
-  text("pontos: " + score, 500, 50)
+  textSize(20);
+  fill("black")
+  text("pontos: " + score, width*0.7, 50)
   
   if (gameState == PLAY) {
     
      //pontuação
-     score = score + Math.round(frameCount/60) 
+     score = score + Math.round(getFrameRate()/60) 
 
     if (score > 0 && score%100 == 0) {
 
@@ -89,12 +91,12 @@ function draw(){
       ground.velocityX = -7
       
       //chão infinito
-     if (ground.x < 0){
+     if (ground.x < width*0.2){
        ground.x = ground.width/2
     }
 
       //pular quando tecla de espaço for pressionada
-     if(keyDown("space") && trex.y >= 130){
+     if(keyDown("space") && trex.y > height/3 +50){
        trex.velocityY = -10;
        jumpSound.play()
     }
@@ -142,6 +144,19 @@ function draw(){
  //impedir que o trex caia
  trex.collide(groundInvisible)
 
+ if((touches.length > 0 || keyDown("SPACE")) && trex.y  >=  height/3 -50) {
+  jumpSound.play( )
+  trex.velocityY = -10;
+   touches = [];
+}
+
+
+
+if(touches.length>0 || mousePressedOver(restart)) {      
+  reset();
+  touches = []
+}
+
   drawSprites();
 }
 
@@ -149,19 +164,19 @@ function CriarNuvens() {
  
   if (frameCount %60 == 0) {
 
-  Nuvenzinha = createSprite (600, 100, 40, 10)
-  Nuvenzinha.velocityX = -3;
+  Nuvenzinha = createSprite(width-200,height/2,40,10)
+  Nuvenzinha.velocityX = -4;
   Nuvenzinha.addImage(nuvemImage)
   Nuvenzinha.scale = 0.7
   //altura aleatoria
-  Nuvenzinha.y = Math.round(random(10, 60))
+  Nuvenzinha.y = Math.round(random(10,height/3));
 
   //ajuste de profundidade
   Nuvenzinha.depth = trex.depth
   trex.depth = trex.depth + 1
-
+ 
   //tempo de vida das nuvens
-  Nuvenzinha.lifetime = 220
+  Nuvenzinha.lifetime = width+40;
 
   //add ao grupo
   nuvenzinhaGroup.add(Nuvenzinha);
@@ -171,7 +186,7 @@ function CriarNuvens() {
 function CriarObstaculos() {
  
   if (frameCount %100 == 0) {
- cacto = createSprite (600, 165, 10, 40)
+ cacto = createSprite(width+20,height/2-12,20,30);
  cacto.velocityX = -7
  cacto.scale = 0.5
  
@@ -199,7 +214,7 @@ function CriarObstaculos() {
   //add ao grupo
    cactoGroup.add(cacto)
 
-  cacto.lifetime = 300
+  cacto.lifetime = width +40;
   }
 }
 
